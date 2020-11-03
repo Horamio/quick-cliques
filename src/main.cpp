@@ -121,6 +121,7 @@ int main(int argc, char** argv)
     bool   const bOutputTable(mapCommandLineArgs.find("--table") != mapCommandLineArgs.end());
     string const inputFile((mapCommandLineArgs.find("--input-file") != mapCommandLineArgs.end()) ? mapCommandLineArgs["--input-file"] : "");
     string const algorithm((mapCommandLineArgs.find("--algorithm") != mapCommandLineArgs.end()) ? mapCommandLineArgs["--algorithm"] : "");
+    string const inlineInput((mapCommandLineArgs.find("--inline-input") != mapCommandLineArgs.end()) ? mapCommandLineArgs["--inline-input"] : "");
     bool   const staging(mapCommandLineArgs.find("--staging") != mapCommandLineArgs.end());
 
     bool   const bTableMode(bOutputLatex || bOutputTable);
@@ -132,8 +133,8 @@ int main(int argc, char** argv)
 #endif //DEBUG_MESSAGE
     }
 
-    if (inputFile.empty()) {
-        cout << "ERROR: Missing input file " << endl;
+    if (inputFile.empty() && inlineInput.empty()) {
+        cout << "ERROR: Missing input graph" << endl;
         // ShowUsageMessage();
         // return 1; // TODO/DS
     }
@@ -144,7 +145,7 @@ int main(int argc, char** argv)
         // return 1; // TODO/DS
     }
 
-    if (argc <= 1 || !isValidAlgorithm(algorithm) || inputFile.empty()) {
+    if (argc <= 1 || !isValidAlgorithm(algorithm) || (inputFile.empty() && inlineInput.empty())) {
         cout << "USAGE: " << argv[0] << " --input-file=<filename> --algorithm=<tomita|adjlist|degeneracy|hybrid>" << endl;
         return 1;
     }
@@ -157,14 +158,23 @@ int main(int argc, char** argv)
 
     bool bOneBasedVertexIds(false);
     vector<list<int>> adjacencyList;
-    if (inputFile.find(".graph") != string::npos) {
-        if (!bTableMode) cout << "Detected .graph extension, reading METIS file format. " << endl << flush;
-        adjacencyList = readInGraphAdjListEdgesPerLine(n, m, inputFile);
-        bOneBasedVertexIds = true;
-    } else {
-        if (!bTableMode) cout << "Reading .edges file format: one edge per line. " << endl << flush;
-        adjacencyList = readInGraphAdjList(n, m, inputFile);
+
+    if (!inlineInput.empty()) {
+        adjacencyList = readInGraphAdjListEdgesPerLineInline(n, m, inlineInput);
     }
+    else {
+        if (inputFile.find(".graph") != string::npos) {
+            if (!bTableMode) cout << "Detected .graph extension, reading METIS file format. " << endl << flush;
+            adjacencyList = readInGraphAdjListEdgesPerLine(n, m, inputFile);
+            bOneBasedVertexIds = true;
+        } else {
+            if (!bTableMode) cout << "Reading .edges file format: one edge per line. " << endl << flush;
+            adjacencyList = readInGraphAdjList(n, m, inputFile);
+        }
+    }
+
+ 
+
 
     bool const bComputeAdjacencyMatrix(adjacencyList.size() < 20000);
     bool const bShouldComputeAdjacencyMatrix(name == "tomita");

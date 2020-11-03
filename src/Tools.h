@@ -58,6 +58,7 @@ std::vector<std::list<int>> readInGraphAdjList(int* n, int* m);
 
 std::vector<std::list<int>> readInGraphAdjList(int &n, int &m, std::string const &fileName);
 std::vector<std::list<int>> readInGraphAdjListEdgesPerLine(int &n, int &m, std::string const &fileName);
+std::vector<std::list<int>> readInGraphAdjListEdgesPerLineInline(int &n, int &m, std::string const &inlineInput);
 
 void runAndPrintStatsMatrix(long (*function)(char**,
                                              int),
