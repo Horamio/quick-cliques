@@ -319,77 +319,55 @@ vector<list<int>> readInGraphAdjListEdgesPerLine(int &n, int &m, string const &f
 vector<list<int>> readInGraphAdjListEdgesPerLineInline(int &n, int &m, string const &inlineInput)
 {   
     std::stringstream instream(inlineInput);
-    if (instream.good() && !instream.eof()) {
-        string line;
-        std::getline(instream, line, '\n');
-////        cout << "Read Line: " << line << endl << flush;
-        while((line.empty() || line[0] == '%') && instream.good() && !instream.eof()) {
-            std::getline(instream, line, '\n');
-        }
-        stringstream strm(line);
-        strm >> n >> m;
-    } else {
-        fprintf(stderr, "ERROR: Problem reading number of vertices and edges in file\n");
+
+    if (instream.good() && !instream.eof())
+        instream >> n;
+    else {
+        fprintf(stderr, "problem with line 1 in input file\n");
         exit(1);
     }
 
-    // std::string segment;
-    // std::vector<std::string> seglist;
-    // while(std::getline(inlineInput, segment, '\n'))
-    // {
-    //     seglist.push_back(segment);
-    // }
 
-    // if (seglist.size() > 2) {
-    //     n = seglist[0]
-    //     m = seglist[1]
-    // } else {
-    //     fprintf(stderr, "ERROR: Problem reading number of vertices and edges in input \n");
-    //     exit(1);
-    // }
+    if (instream.good() && !instream.eof())
+        instream >> m;
+    else {
 
+        fprintf(stderr, "problem with line 2 in input file\n");
+        exit(1);
+    }
+
+#ifdef DEBUG
     printf("Number of vertices: %d\n", n);
     printf("Number of edges: %d\n", m);
-
-// #ifdef DEBUG
-//     printf("Number of vertices: %d\n", n);
-//     printf("Number of edges: %d\n", m);
-// #endif
+#endif
     
     vector<list<int>> adjList(n);
 
-//     int u, v; // endvertices, to read edges.
-//     int i = 0;
-//     while (i < n) {
-//         if (!instream.good()  || instream.eof()) {
-//             fprintf(stderr, "ERROR: Problem reading line %d in file %s\n", i+1, fileName.c_str());
-//             exit(1);
-//         }
+    int u, v; // endvertices, to read edges.
+    int i = 0;
+    while(i < m)
+    {
+        char comma;
+        if (instream.good() && !instream.eof()) {
+            instream >> u >> comma >> v;
+        } else {
+            fprintf(stderr, "problem with line %d in input file\n", i+2);
+            exit(1);
+        }
+        assert(u < n && u > -1);
+        assert(v < n && v > -1);
+        if(u==v)
+            fprintf(stderr, "Detected loop %d->%d\n", u, v);
+        assert(u != v);
 
-//         string line;
-//         std::getline(instream, line);
-//         u = i; // TODO/DS: remove.
-//         stringstream strm(line);
-//         while (!line.empty() && strm.good() && !strm.eof()) {
-//             strm >> v;
-//             v--;
+        adjList[u].push_back(v);
 
-//             assert(u < n && u > -1);
-//             assert(v < n && v > -1);
-//             if (u==v) {
-//                 fprintf(stderr, "ERROR: Detected loop %d->%d\n", u + 1, v + 1);
-//                 exit(1);
-//             }
+        i++;
+    }
 
-//             adjList[u].push_back(v);
-//         }
-
-//         i++;
-//     }
-
-// #ifdef DEBUG
-//     printArrayOfLinkedLists(adjList, n);
-// #endif
+#ifdef DEBUG
+    printArrayOfLinkedLists(adjList, n);
+#endif
 
     return adjList;
 }
